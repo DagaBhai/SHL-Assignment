@@ -333,22 +333,3 @@ Top SHL Assessments
 API Response
 ```
 
----
-
-## Future Improvements
-
-- Web frontend
-- Streaming responses
-- Better reranking of assessments
-- Conversation memory
-- Authentication
-- Docker deployment
-- Unit tests
-- Evaluation framework
-- Support for multiple assessment providers
-
----
-
-## License
-
-This project is intended for educational and research purposes.

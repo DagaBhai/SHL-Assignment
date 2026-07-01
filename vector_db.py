@@ -43,7 +43,7 @@ class vec_db():
             model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
 
-        collection = self._chroma_client.create_collection(
+        collection = self._chroma_client.get_or_create_collection(
             name=collection_name,
             embedding_function=embedding_fn,
         )

@@ -11,22 +11,21 @@ class Agent:
         self._llm = llm
         think_node = ThinkNode()
         self.flow = Flow(start=think_node)
-        self.shared = {
-            "llm": self._llm,
-            "messages": [],
-            "iterations": 0,
-            "max_iterations": 8,
-            "last_thought": None,
-        }
-
+        
     def run(self, messages):
         """
         Executes the agent's logic for a given input: logs the user's message, 
         increments the step counter, runs the defined workflow through the shared 
         state, and returns the final generated response text.
         """
-        self.shared["messages"]= messages.copy()
-        self.shared["iterations"] += 1
-        self.flow.run(self.shared)
+        shared = {
+            "llm": self._llm,
+            "messages": messages.copy(),
+            "iterations": 1,
+            "max_iterations": 8,
+            "last_thought": None,
+        }
 
-        return self.shared["messages"][-1]["content"]
+        self.flow.run(shared)
+
+        return shared["messages"][-1]["content"]

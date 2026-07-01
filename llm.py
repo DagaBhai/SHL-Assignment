@@ -9,6 +9,7 @@ load_dotenv()
 class LLM:
     def __init__(self):
         self.client = genai.Client(api_key=os.getenv("API"))
+        self.system_prompt = open("system_prompt.txt").read()
 
     def chat_completion(self, messages):
         contents = []
@@ -23,10 +24,10 @@ class LLM:
             )
 
         response = self.client.models.generate_content(
-            model="gemini-3.5-flash",
+            model="gemini-2.5-flash",
             contents=contents,
             config=types.GenerateContentConfig(
-                system_instruction=open("system_prompt.txt").read()
+                system_instruction=self.system_prompt
             )
         )
 

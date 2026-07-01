@@ -10,9 +10,13 @@ class vec_db():
     vector database using ChromaDB, and handle semantic queries.
     """
     def __init__(self):
-        self._chroma_client = chromadb.Client()
+        self._chroma_client = chromadb.PersistentClient(path="./chroma_db")
+        self.embedding_fn = SentenceTransformerEmbeddingFunction(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
         self._get_catalog()
-        self._build_database(collection_name= "catalog_collection")
+        self._build_database(collection_name="catalog_collection")
+
 
     def query(self, texts, collection_name="catalog_collection", n_results=5):
         """
@@ -36,6 +40,14 @@ class vec_db():
         documents, extracts metadata, and stores them in a ChromaDB collection.
         """
 
+        try:
+            return self._chroma_client.get_collection(
+                name=collection_name,
+                embedding_function=self.embedding_fn,
+            )
+        except Exception:
+            pass
+
         with open("catalog_data.json","r") as file:
             data = json.load(file)
 
@@ -43,7 +55,7 @@ class vec_db():
             model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
 
-        collection = self._chroma_client.get_or_create_collection(
+        collection = self._chroma_client.create_collection(
             name=collection_name,
             embedding_function=embedding_fn,
         )
@@ -91,6 +103,7 @@ class vec_db():
         """
         if os.path.exists("catalog_data.json"):
             return None
+        
         url = "https://tcp-us-prod-rnd.shl.com/voiceRater/shl-ai-hiring/shl_product_catalog.json"
         response = requests.get(url)
         with open("catalog_data.json","w") as file:

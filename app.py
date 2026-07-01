@@ -1,4 +1,5 @@
 import json
+import asyncio
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -45,17 +46,31 @@ def health():
 
 
 @app.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
+async def chat(request: ChatRequest):
     
     history = [m.model_dump() for m in request.messages]
-    reply = agent.run(history)
+
+
+    try:
+        reply = await asyncio.wait_for(
+            asyncio.to_thread(agent.run, history),
+            timeout=30
+        )
+
+    except asyncio.TimeoutError:
+        return ChatResponse(
+            reply="Request timed out after 30 seconds. Please try again.",
+            recommendations=None,
+            end_of_conversation=True,
+        )
+
     if isinstance(reply, dict):
         return ChatResponse(
             reply=reply.get("reply", str(reply)),
             recommendations=None,
             end_of_conversation=False,
         )
-
+    
     try:
         data = json.loads(reply)
 
